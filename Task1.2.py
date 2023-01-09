@@ -4,10 +4,7 @@ import recordlinkage
 from recordlinkage.index import Block
 from recordlinkage.index import Full
 
-
-
-
-data_prep = __import__('Task1.1')
+data_prep = __import__('Task1_1')
 try:
     attrlist = data_prep.__all__
 except AttributeError:
@@ -15,13 +12,14 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
-df_DBLP,df_ACM = data_prep.preprocessing
+df_DBLP, df_ACM = data_prep.preprocessing()
 
-v_1=df_ACM['venue'].value_counts()
-v_2=df_DBLP['venue'].value_counts()
+v_1 = df_ACM['venue'].value_counts()
+v_2 = df_DBLP['venue'].value_counts()
 
-v_1_index=v_1.index
-v_2_index=v_2.index
+v_1_index = v_1.index
+v_2_index = v_2.index
+
 
 def similarities():
     lista = []
@@ -42,32 +40,24 @@ def similarities():
     print(lista)
     print(lista_2)
 
-    dictionary = dict(zip(lista, lista_2))
+    dictionary = dict(zip(lista_2, lista))
     dictionary
 
-    df_ACM['venue'] = df_ACM['venue'].map(dictionary)
-    y_1 = df_ACM['year'].value_counts()
-    y_2 = df_DBLP['year'].value_counts()
-    result = y_2.gt(y_1)
-    result
+    df_DBLP['venue'] = df_DBLP['venue'].map(dictionary)
 
+    return df_DBLP
+
+
+df_DBLP = similarities()  # processed
 
 
 def binning():
-    indexer = recordlinkage.Index()
-    indexer.block('year')
-
-    candidate_links = indexer.index(df_ACM, df_DBLP)
-
     indexer = Block(left_on=['year', 'venue'],
                     right_on=['year', 'venue'])
     candidate_links = indexer.index(df_ACM, df_DBLP)
 
-    indexer = recordlinkage.Index()
-    indexer.add(Full())
-    candidate_links_all = indexer.index(df_ACM, df_DBLP)
+    return df_ACM, df_DBLP, candidate_links
 
-    return df_ACM,df_DBLP,candidate_links,candidate_links_all
 
 
 
