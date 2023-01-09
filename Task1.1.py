@@ -19,8 +19,8 @@ from nltk.tokenize import ToktokTokenizer
 
 os.chdir("Dataset")
 
-df_DBLP = pd.read_csv('ACM.csv', header=0, encoding="ISO-8859-1")
-df_ACM = pd.read_csv('DBLP2.csv', header=0, encoding="ISO-8859-1")
+df_DBLP = pd.read_csv('DBLP2.csv', header=0, encoding="ISO-8859-1")
+df_ACM = pd.read_csv('ACM.csv', header=0, encoding="ISO-8859-1")
 
 tokenizer = ToktokTokenizer()
 nltk.download('stopwords')
@@ -42,6 +42,8 @@ def evaluating_dataset():
     df_DBLP.duplicated().sum()
 
     df_ACM.duplicated().sum()
+    df_ACM.replace(np.nan, ' ', inplace=True)
+    df_DBLP.replace(np.nan, ' ', inplace=True)
 
     df_DBLP.columns.values.tolist()
 
@@ -77,13 +79,11 @@ def evaluating_dataset():
     sns.countplot(df_ACM['year'])
     plt.show()
 
-
     sns.countplot(df_DBLP['venue'])
     plt.show()
 
     sns.countplot(df_DBLP['year'])
     plt.show()
-
 
     # Filter data
 
@@ -163,7 +163,7 @@ def remove_stopwords(text):
 
 # function to remove special characters
 def remove_extra_whitespace_tabs(text):
-    #pattern = r'^\s+$|\s+$'
+    # pattern = r'^\s+$|\s+$'
     pattern = r'^\s*|\s\s*'
     return re.sub(pattern, ' ', text).strip()
 
@@ -171,11 +171,18 @@ def remove_extra_whitespace_tabs(text):
 def preprocessing():
     # make lower case ACM
 
+    df_ACM['title'] = df_ACM['title'].astype("string")
+    df_ACM['authors'] = df_ACM['authors'].astype("string")
+    df_ACM['venue'] = df_ACM['venue'].astype("string")
+
     df_ACM['title'] = df_ACM['title'].str.lower()
     df_ACM['authors'] = df_ACM['authors'].str.lower()
     df_ACM['venue'] = df_ACM['venue'].str.lower()
 
     # make lower case DBLP
+    df_DBLP['title'] = df_DBLP['title'].astype("string")
+    df_DBLP['authors'] = df_DBLP['authors'].astype("string")
+    df_DBLP['venue'] = df_DBLP['venue'].astype("string")
 
     df_DBLP['title'] = df_DBLP['title'].str.lower()
     df_DBLP['authors'] = df_DBLP['authors'].str.lower()
@@ -218,7 +225,7 @@ def preprocessing():
     print("Preprocessing DBLP Completed")
 
     for ind in df_ACM.index:
-        df_ACM['title'][ind] = remove_html_tags(df_ACM['title'][ind])
+        # df_ACM['title'][ind] = remove_html_tags(df_ACM['title'][ind])
         df_ACM['title'][ind] = remove_accented_chars(df_ACM['title'][ind])
         df_ACM['title'][ind] = remove_special_characters(df_ACM['title'][ind])
         df_ACM['title'][ind] = remove_numbers(df_ACM['title'][ind])
@@ -227,7 +234,7 @@ def preprocessing():
         df_ACM['title'][ind] = remove_stopwords(df_ACM['title'][ind])
         df_ACM['title'][ind] = remove_extra_whitespace_tabs(df_ACM['title'][ind])
 
-        df_ACM['authors'][ind] = remove_html_tags(df_ACM['authors'][ind])
+        # df_ACM['authors'][ind] = remove_html_tags(df_ACM['authors'][ind])
         df_ACM['authors'][ind] = remove_accented_chars(df_ACM['authors'][ind])
         df_ACM['authors'][ind] = remove_special_characters(df_ACM['authors'][ind])
         df_ACM['authors'][ind] = remove_numbers(df_ACM['authors'][ind])
@@ -236,7 +243,7 @@ def preprocessing():
         df_ACM['authors'][ind] = remove_stopwords(df_ACM['authors'][ind])
         df_ACM['authors'][ind] = remove_extra_whitespace_tabs(df_ACM['authors'][ind])
 
-        df_ACM['venue'][ind] = remove_html_tags(df_ACM['venue'][ind])
+        # df_ACM['venue'][ind] = remove_html_tags(df_ACM['venue'][ind])
         df_ACM['venue'][ind] = remove_accented_chars(df_ACM['venue'][ind])
         df_ACM['venue'][ind] = remove_special_characters(df_ACM['venue'][ind])
         df_ACM['venue'][ind] = remove_numbers(df_ACM['venue'][ind])
@@ -248,4 +255,7 @@ def preprocessing():
     df_ACM.head()
     print("Preprocessing ACM Completed")
 
-    return df_DBLP,df_ACM
+    return df_DBLP, df_ACM
+
+
+df_DBLP, df_ACM = preprocessing()
