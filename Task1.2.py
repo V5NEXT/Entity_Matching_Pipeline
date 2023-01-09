@@ -1,62 +1,62 @@
-import Levenshtein
-import numpy as np
+
 import recordlinkage
-from recordlinkage.index import Block
-from recordlinkage.index import Full
+import pandas as pd
 
-data_prep = __import__('Task1_1')
+data_binning = __import__('Task1_2')
 try:
-    attrlist = data_prep.__all__
+    attrlist = data_binning.__all__
 except AttributeError:
-    attrlist = dir(data_prep)
+    attrlist = dir(data_binning)
 for attr in attrlist:
-    globals()[attr] = getattr(data_prep, attr)
+    globals()[attr] = getattr(data_binning, attr)
 
-df_DBLP, df_ACM = data_prep.preprocessing()
+df_perfect_Match = pd.read_csv('DBLP-ACM_perfectMapping.csv', header=0, encoding="ISO-8859-1")
 
-v_1 = df_ACM['venue'].value_counts()
-v_2 = df_DBLP['venue'].value_counts()
-
-v_1_index = v_1.index
-v_2_index = v_2.index
+df_ACM, df_DBLP, candidate_links = data_binning.binning()
 
 
-def similarities():
-    lista = []
-    lista_2 = []
-    maksimumi = np.zeros((len(v_1_index), len(v_2_index)))
-    for i in range(len(v_1_index)):
-        for j in range(len(v_2_index)):
-            maksimumi[i][j] = Levenshtein.ratio(v_1_index[i], v_2_index[j])
-            print(maksimumi)
-    from numpy import unravel_index
-    for i in range(len(v_1_index)):
-        (u, v) = unravel_index(maksimumi.argmax(), maksimumi.shape)
-        lista.append(v_1_index[u])
-        lista_2.append(v_2_index[v])
-        maksimumi[:, v] = np.zeros(len(v_1_index))
-        maksimumi[u, :] = np.zeros(len(v_2_index))
-        print(maksimumi)
-    print(lista)
-    print(lista_2)
+def matching():
+    compare_cl = recordlinkage.Compare()
+    compare_cl.exact("venue", "venue", label="venue")
+    compare_cl.string("title", "title", method="jarowinkler", label="title")
+    compare_cl.exact("year", "year", label="year")
+    compare_cl.string("authors", "authors", method="jarowinkler", label="authors")
 
-    dictionary = dict(zip(lista_2, lista))
-    dictionary
+    features = compare_cl.compute(candidate_links, df_ACM, df_DBLP)
 
-    df_DBLP['venue'] = df_DBLP['venue'].map(dictionary)
+    matches = features[features[['title', 'authors']].sum(axis=1) >= 1.6]
+    matches.index.names = ['ACM', 'DBLP']
+    matches = matches.reset_index()
+    matches_new = matches.loc[matches.groupby(['ACM'])['DBLP'].idxmax()]
+    links_pred = matches_new.set_index(['ACM', 'DBLP'])
 
-    return df_DBLP
+    return links_pred
 
 
-df_DBLP = similarities()  # processed
+def evaluation():
+    d_1 = df_ACM['id'].to_dict()
+    d_1_flip = {y: x for x, y in d_1.items()}
+
+    d_2 = df_DBLP['id'].to_dict()
+    d_2_flip = {y: x for x, y in d_2.items()}
+
+    df_perfect_Match['idACM'] = df_perfect_Match['idACM'].map(d_1_flip)
+    df_perfect_Match['idDBLP'] = df_perfect_Match['idDBLP'].map(d_2_flip)
+
+    perfectMapping = df_perfect_Match[['idACM', 'idDBLP']]
+
+    links_true = pd.MultiIndex.from_frame(perfectMapping)
+
+    f_score = recordlinkage.fscore(links_true, links_pred.index)
+
+    return f_score
 
 
-def binning():
-    indexer = Block(left_on=['year', 'venue'],
-                    right_on=['year', 'venue'])
-    candidate_links = indexer.index(df_ACM, df_DBLP)
+links_pred = matching()
+f_score = evaluation()
+print(links_pred)
+print(f_score)
 
-    return df_ACM, df_DBLP, candidate_links
 
 
 
