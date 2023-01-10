@@ -60,6 +60,8 @@ def svm():
 
 
 # Since SVM have better results
+#
+# def hyperparametertuning():
+#     #To-do
 
-def hyperparametertuning():
-    #To-do
+LogisticRegressionClassifier()
