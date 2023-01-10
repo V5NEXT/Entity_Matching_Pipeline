@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan  8 22:45:02 2023
-
-@author: Angela
-"""
 
 import os
 import numpy as np
@@ -26,7 +20,7 @@ nlp = load_spacy("en_core_web_sm", exclude=["parser", "tagger"])
 
 
 
-os.chdir("C://Users//Angela//Documents//dila_projekat//DBLP-ACM")
+os.chdir("Dataset")
 
 df_DBLP = pd.read_csv('DBLP2.csv', header=0, encoding="ISO-8859-1")
 df_ACM = pd.read_csv('ACM.csv', header=0, encoding="ISO-8859-1")

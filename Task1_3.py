@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan  8 22:50:05 2023
-
-@author: Angela
-"""
-
 
 import pandas as pd
 import recordlinkage
@@ -58,14 +51,15 @@ def evaluation():
     perfectMapping = df_perfect_Match[['idACM', 'idDBLP']]
 
     links_true = pd.MultiIndex.from_frame(perfectMapping)
-    
+
     f_score=recordlinkage.fscore(links_true, links_pred.index)
 
 
 
-    return f_score
+    return f_score,links_true
 links_pred=matching()
-f_score=evaluation()
+f_score,links_true=evaluation()
+
 print(links_pred)
 print(f_score)
 
