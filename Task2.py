@@ -13,6 +13,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import time
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import LeaveOneOut
+
 
 data_prep = __import__('Task1_1')
 try:
@@ -121,7 +125,7 @@ def svm():
     score= f1_score(y_test, result_svm)
     SVC(random_state=0)
     cm = confusion_matrix(y_test, result_svm)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot()
     plt.show()
     return  score
@@ -139,10 +143,26 @@ def hyperparametertuning():
                   'kernel': ['rbf']}
 
     grid = GridSearchCV(SVC(), param_grid, refit=True, verbose=3)
+    start = time.time()
+
     grid.fit(X_train, y_train)
-    result_svm = svm.predict(X_test)
-    print(result_svm)
+    end = time.time()
+    # show the grid search information
+    print("[INFO] grid search took {:.2f} seconds".format(
+        end - start))
+    print("[INFO] grid search best score: {:.2f}%".format(
+        grid.best_score_ * 100))
+    print("[INFO] grid search best parameters: {}".format(
+        grid.best_params_))
+    model = grid.best_estimator_
+    print("[INFO] evaluating...")
+
+    predictions = model.predict(X_test)
+    print(predictions)
 
 
+    score = f1_score(y_test, predictions)
+
+    print("F1_SCORE_FINAL", score)
 
 hyperparametertuning()
