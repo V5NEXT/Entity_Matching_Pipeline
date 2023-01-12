@@ -18,8 +18,6 @@ from spacy_download import load_spacy
 
 nlp = load_spacy("en_core_web_sm", exclude=["parser", "tagger"]) 
 
-
-
 os.chdir("Dataset")
 
 df_DBLP = pd.read_csv('DBLP2.csv', header=0, encoding="ISO-8859-1")
