@@ -10,12 +10,19 @@ from recordlinkage.index import Full
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import f1_score
 import pandas as pd
+from sklearn.metrics import accuracy_score
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import time
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import cross_validate
+from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import KFold
+from sklearn.metrics import f1_score, recall_score, precision_score, confusion_matrix
+from sklearn.metrics import r2_score, roc_auc_score, roc_curve, classification_report
 
 
 data_prep = __import__('Task1_1')
@@ -26,7 +33,6 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
     
-print(df_DBLP)
 feature_scoring= __import__('Task1_3')
 try:
     attrlist = feature_scoring.__all__
@@ -73,9 +79,6 @@ def split_dataset_classification():
    label_0_new=label_0[indices]
   
    X_train_0, X_test_0, y_train_0, y_test_0 = train_test_split(label_0_new[:, :-1], label_0_new[:, -1], test_size=0.30, random_state=42)
-   print(len(y_test_1.tolist()),len(y_test_0.tolist()))
-   print(X_train_0.shape, X_train_1.shape)
-   print(y_train_0.shape, y_train_1.shape)
    return X_train_0,X_test_0,y_train_0,y_test_0, X_train_1,X_test_1,y_train_1,y_test_1
 X_train_0,X_test_0,y_train_0,y_test_0, X_train_1,X_test_1,y_train_1,y_test_1= split_dataset_classification()
 
@@ -83,39 +86,27 @@ X_train = np.concatenate([X_train_0, X_train_1], axis=0)
 X_test = np.concatenate([X_test_0, X_test_1], axis=0)
 y_train = np.concatenate([y_train_0, y_train_1], axis=0)
 y_test = np.concatenate([y_test_0, y_test_1], axis=0)
-print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
 
-
-def logistika():
-    model = LogisticRegression() 
-    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=1) 
-    lst_accu_stratified = []
-    for train_index, test_index in skf.split(X, y): 
-        X_train_fold, X_test_fold = X[train_index], X[test_index] 
-        y_train_fold, y_test_fold = y[train_index], y[test_index] 
-        model.fit(X_train_fold, y_train_fold) 
-        lst_accu_stratified.append(model.score(X_test_fold, y_test_fold))
 
 
 def LogisticRegressionClassifier():
     logreg = rl.LogisticRegressionClassifier()
-    X_train, X_test, Y_train, Y_test = split_dataset_classification()
-    # golden_pairs = features
-    # golden_matches_index = golden_pairs.index.intersection(links_true)
-    # print(golden_matches_index)
 
-    logreg.fit(X_train, Y_train)
+    logreg.fit(X_train, y_train)
     print("Intercept: ", logreg.intercept)
     print("Coefficients: ", logreg.coefficients)
 
-    result_logreg = logreg.predict(features_all)
+    result_logreg = logreg.predict(X_test)
 
     print(result_logreg)
 
-    rl.confusion_matrix(links_true, result_logreg, len(features_all))
 
-    rl.fscore(links_true, result_logreg)
+    rl.fscore(y_test, result_logreg)
+
+# Base SVM Model
+#   returns : f1_score
+#   displays correlation Plot
 
 def svm():
     svm = SVC()
@@ -129,8 +120,7 @@ def svm():
     disp.plot()
     plt.show()
     return  score
-# result_svm=svm()
-# print(result_svm)
+
 
 
 
@@ -164,5 +154,42 @@ def hyperparametertuning():
     score = f1_score(y_test, predictions)
 
     print("F1_SCORE_FINAL", score)
+    return model
 
-hyperparametertuning()
+
+df_x = np.concatenate([X_train, X_test], axis=0)
+df_y = np.concatenate([y_train, y_test], axis=0)
+def crossvalidaion():
+    kf = KFold(n_splits=10, shuffle=True)
+
+    acc_arr = np.empty((10, 1))
+    f1_arr = np.empty((10, 1))
+    cnf_arr = []
+    x = 0
+
+    model = hyperparametertuning()
+    for train_index, test_index in kf.split(df_x, df_y):
+
+
+        X_train, X_test = df_x[train_index], df_x[test_index]
+        y_train, y_test = df_y[train_index], df_y[test_index]
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        print('Accuracy Score: {:.4f}'.format(accuracy_score(y_test, y_pred)))
+        print('SVC f1-score  : {:.4f}'.format(f1_score(y_pred, y_test)))
+        print('SVC precision : {:.4f}'.format(precision_score(y_pred, y_test)))
+        print('SVC recall    : {:.4f}'.format(recall_score(y_pred, y_test)))
+        print("\n", classification_report(y_pred, y_test))
+
+        cnf_matrix = confusion_matrix(y_test, y_pred)
+        acc_arr[x] = accuracy_score(y_test, y_pred)
+        f1_arr[x] = f1_score(y_test, y_pred)
+
+        x = x + 1
+
+    print("%0.2f f1 score with a standard deviation of %0.2f" %
+          (f1_arr.mean(), f1_arr.std()))
+    print("%0.2f accuracy with a standard deviation of %0.2f" %
+          (acc_arr.mean(), acc_arr.std()))
+
+crossvalidaion()
