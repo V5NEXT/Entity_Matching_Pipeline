@@ -194,10 +194,10 @@ def evaluation_label_0():
 # svm()
 
 # For hyper-parameter tuning results uncomment below:
-hyperparametertuning_SVM()
+# hyperparametertuning_SVM()
 
 # For K-Fold cross-validation results uncomment below:
-# crossvalidation()
+crossvalidation()
 
 #the same can be done for the every set of rows possible :D,
 # but important to say that label_0 has a huge part of data that has never been seen by the model

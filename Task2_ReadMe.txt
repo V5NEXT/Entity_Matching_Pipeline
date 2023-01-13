@@ -1,17 +1,26 @@
 
-
-
-
 Task 2.1 (File : Task2.py)
-After succesfully creating the dataset the next task was to find a suitable machine learning model to train and predict based on perfect Mapping
+After successfully creating the dataset the next task was to find a suitable machine learning model to train and predict based on perfect Mapping
 
+Each pair is represented by that feature. However, first we need to label our matches obtained in Task.1_3 by 1. While, the rest of the table, nonmatches are going
+to be 0. quick reminder: our features dataframe is multindexed
+So, we should do the searching for rows who have multiindex in list of links_pred indices, and set label to 1.
+As features represent the vector quantification of each pair. In order to do any kind of ml modelling, we need to extract those vectors, and their respective labels.
+
+split_dataset_classification()
+
+Classes are highly imbalanced. So, we level down the label 0 vectors, to the number of label 1 vectors.
+Performing standard train test split, on each class.
+
+concatenation()
+Putting the vectors together in order to train on them
 
 
 Task 2.2 (File : Task2.py)
 We tried between Logistics Regression and SVM. Since SVM yielded better results for us we decided to move ahead with SVM
 
 Base Model Creation
-SVM() : Function which uses sklearn's sklearn.svm funstion to train the model
+SVM() : Function which uses sklearn's sklearn.svm function to train the model
 
 We achieved :
 
@@ -46,7 +55,7 @@ F1_SCORE_FINAL
 
 You can replicate the following results by running the function hyperparametertuning_SVM()
 
-Cross-Validation : Inorder to check for overfitting we did cross validation using sklearn's K-Fold mechanism
+Cross-Validation : Inorder to check for over-fitting we did cross validation using sklearn's K-Fold mechanism
 
 Function used : crossvalidation()
 
