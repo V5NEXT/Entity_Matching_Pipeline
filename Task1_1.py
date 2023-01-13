@@ -4,13 +4,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import tensorflow as tf
 import nltk
 from bs4 import BeautifulSoup
 import unicodedata
 import re
 import string
-import spacy
+
 
 from nltk.tokenize import ToktokTokenizer
 
@@ -18,7 +17,7 @@ from spacy_download import load_spacy
 
 nlp = load_spacy("en_core_web_sm", exclude=["parser", "tagger"]) 
 
-os.chdir("Dataset")
+os.chdir('Dataset')
 
 df_DBLP = pd.read_csv('DBLP2.csv', header=0, encoding="ISO-8859-1")
 df_ACM = pd.read_csv('ACM.csv', header=0, encoding="ISO-8859-1")
@@ -26,9 +25,7 @@ df_ACM = pd.read_csv('ACM.csv', header=0, encoding="ISO-8859-1")
 tokenizer = ToktokTokenizer()
 nltk.download('stopwords')
 stopword_list = nltk.corpus.stopwords.words('english')
-# custom: removing words from list
-stopword_list.remove('not')
-nlp = spacy.load('en_core_web_sm')
+
 
 
 # Exploring the DataSet
@@ -260,8 +257,8 @@ def preprocessing():
 
     return df_DBLP, df_ACM
 
-df_DBLP, df_ACM= preprocessing()
-
+#run if you dont want task 1_2
+#df_DBLP, df_ACM = preprocessing()
 
 
 

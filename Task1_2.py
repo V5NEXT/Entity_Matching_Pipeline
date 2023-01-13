@@ -1,18 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan  8 22:49:21 2023
-
-@author: Angela
-"""
-
-
 import Levenshtein
 import numpy as np
-import recordlinkage
 from recordlinkage.index import Block
-from recordlinkage.index import Full
-
-
 
 
 data_prep = __import__('Task1_1')
@@ -38,7 +26,7 @@ def similarities():
     for i in range(len(v_1_index)):
         for j in range(len(v_2_index)):
             maksimumi[i][j] = Levenshtein.ratio(v_1_index[i], v_2_index[j])
-            print(maksimumi)
+            #print(maksimumi)
     from numpy import unravel_index
     for i in range(len(v_1_index)):
         (u, v) = unravel_index(maksimumi.argmax(), maksimumi.shape)
@@ -46,9 +34,9 @@ def similarities():
         lista_2.append(v_2_index[v])
         maksimumi[:, v] = np.zeros(len(v_1_index))
         maksimumi[u, :] = np.zeros(len(v_2_index))
-        print(maksimumi)
-    print(lista)
-    print(lista_2)
+        #print(maksimumi)
+    #print(lista)
+    #print(lista_2)
 
     dictionary = dict(zip(lista_2, lista))
     dictionary
@@ -59,13 +47,16 @@ def similarities():
 
 df_DBLP=similarities()  #processed
 
-def binning():
+def blocking():
     indexer = Block(left_on=['year', 'venue'],
                     right_on=['year', 'venue'])
     candidate_links = indexer.index(df_ACM, df_DBLP)
 
 
     return df_ACM,df_DBLP,candidate_links
+
+#run if you dont want task 1_3
+#df_ACM, df_DBLP, candidate_links = blocking()
 
 
 

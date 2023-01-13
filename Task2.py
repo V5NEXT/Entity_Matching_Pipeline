@@ -1,38 +1,17 @@
 
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedKFold
-from sklearn.linear_model import LogisticRegression
-import recordlinkage
-import recordlinkage as rl
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
-from recordlinkage.index import Full
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.metrics import f1_score
-import pandas as pd
-from sklearn.metrics import accuracy_score
-
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import  accuracy_score
 import time
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import LeaveOneOut
-from sklearn.model_selection import cross_validate
-from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import KFold
-from sklearn.metrics import f1_score, recall_score, precision_score, confusion_matrix
-from sklearn.metrics import r2_score, roc_auc_score, roc_curve, classification_report
+from sklearn.metrics import f1_score, accuracy_score,recall_score, precision_score, confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 
-data_prep = __import__('Task1_1')
-try:
-    attrlist = data_prep.__all__
-except AttributeError:
-    attrlist = dir(data_prep)
-for attr in attrlist:
-    globals()[attr] = getattr(data_prep, attr)
-    
+
+
 feature_scoring= __import__('Task1_3')
 try:
     attrlist = feature_scoring.__all__
@@ -43,70 +22,81 @@ for attr in attrlist:
     
 
 
-# print(features)
-features['label'] = 0
-for u in links_pred.index.tolist():
-    features.loc[u, 'label']=1
-# print(features)
-# print(features['label'].value_counts())
+#features are from imported from TASK 1_3 as being blocking scheme
+#however belongs to our predictions, gets value 1, as match, others stay to be 0
 
-label_0= features[features['label'] == 0]
-# print(label_0)
-label_1= features[features['label'] == 1]
-# print(label_1)
-label_0=label_0.to_numpy()
-label_1=label_1.to_numpy()
-# print(label_0[:, :-1])
-# print(label_0)
+def preparing_dataset():
+    
+    features['label'] = 0
+    for u in links_pred.index.tolist():
+        features.loc[u, 'label']=1
+        
+    #check for the value counts, and labeling overall
+    
+    print(features)
+    # print(features['label'].value_counts())
+    
+    #in order to properly get balanced classes, we extract two classes seperately from the df
+    
+    label_0= features[features['label'] == 0]
+    # print(label_0)
+    label_1= features[features['label'] == 1]
+    # print(label_1)
+    #in order to extract vectors and labels
+    #[:, :-1]-vectors, [:, -1]-labels
+    label_0=label_0.to_numpy()
+    label_1=label_1.to_numpy()
+    # print(label_0[:, :-1])
+    print(label_0)
+    return label_0, label_1
 
-# def all_pairs():
-#     indexer = recordlinkage.Index()
-#     indexer.add(Full())
-#     candidate_links_all = indexer.index(df_ACM, df_DBLP)
+label_0, label_1 = preparing_dataset()
 
-#     return candidate_links_all
 
-# candidate_links_all = all_pairs()
 
-# features_all = feature_scoring.feature_scores(candidate_links_all)
+
 
 def split_dataset_classification():
 
   
    X_train_1, X_test_1, y_train_1, y_test_1 = train_test_split(label_1[:, :-1], label_1[:, -1], test_size=0.30, random_state=42)
+   # we want balanced classes while training
+   #how many matches(1) we have
    k=len(label_1[:, -1].tolist())
+   #take out random rows(vectors) of nonmatches, we want same number as nonmatches(0)
+   
    indices = np.random.choice(label_0.shape[0], k, replace=False)
+   
    label_0_new=label_0[indices]
   
    X_train_0, X_test_0, y_train_0, y_test_0 = train_test_split(label_0_new[:, :-1], label_0_new[:, -1], test_size=0.30, random_state=42)
+   #check
+   
+   print(len(y_test_1.tolist()),len(y_test_0.tolist()))
+   print(X_train_0.shape, X_train_1.shape)
+   print(y_train_0.shape, y_train_1.shape)
+   
    return X_train_0,X_test_0,y_train_0,y_test_0, X_train_1,X_test_1,y_train_1,y_test_1
-X_train_0,X_test_0,y_train_0,y_test_0, X_train_1,X_test_1,y_train_1,y_test_1= split_dataset_classification()
 
-X_train = np.concatenate([X_train_0, X_train_1], axis=0)
-X_test = np.concatenate([X_test_0, X_test_1], axis=0)
-y_train = np.concatenate([y_train_0, y_train_1], axis=0)
-y_test = np.concatenate([y_test_0, y_test_1], axis=0)
+X_train_0, X_test_0, y_train_0, y_test_0, X_train_1, X_test_1, y_train_1, y_test_1 = split_dataset_classification()
 
+#putting the 1 0 vectors toghther to train,test on them
 
-
-
-def LogisticRegressionClassifier():
-    logreg = rl.LogisticRegressionClassifier()
-
-    logreg.fit(X_train, y_train)
-    print("Intercept: ", logreg.intercept)
-    print("Coefficients: ", logreg.coefficients)
-
-    result_logreg = logreg.predict(X_test)
-
-    print(result_logreg)
+def concatenation():
+    
+    X_train = np.concatenate([X_train_0, X_train_1], axis=0)
+    X_test = np.concatenate([X_test_0, X_test_1], axis=0)
+    y_train = np.concatenate([y_train_0, y_train_1], axis=0)
+    y_test = np.concatenate([y_test_0, y_test_1], axis=0)
+    
+    return X_train, X_test, y_train, y_test
 
 
-    rl.fscore(y_test, result_logreg)
+X_train, X_test, y_train, y_test = concatenation()
 
-# Base SVM Model
-#   returns : f1_score
-#   displays correlation Plot
+#check
+#print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+
 
 def svm():
     svm = SVC()
@@ -119,15 +109,14 @@ def svm():
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot()
     plt.show()
-    return  score
+    return score
+# result_svm=svm()
+# print(result_svm)
 
 
-
-
-# Since SVM have better results
-
-def hyperparametertuning():
-# defining parameter range
+def hyperparametertuning_SVM():
+    
+    #defining parameter range
     param_grid = {'C': [0.1, 1, 10, 100, 1000],
                   'gamma': [1, 0.1, 0.01, 0.001, 0.0001],
                   'kernel': ['rbf']}
@@ -150,16 +139,18 @@ def hyperparametertuning():
     predictions = model.predict(X_test)
     print(predictions)
 
-
     score = f1_score(y_test, predictions)
 
     print("F1_SCORE_FINAL", score)
+    
     return model
 
+model=hyperparametertuning_SVM()
 
 df_x = np.concatenate([X_train, X_test], axis=0)
 df_y = np.concatenate([y_train, y_test], axis=0)
-def crossvalidaion():
+
+def crossvalidation():
     kf = KFold(n_splits=10, shuffle=True)
 
     acc_arr = np.empty((10, 1))
@@ -167,7 +158,7 @@ def crossvalidaion():
     cnf_arr = []
     x = 0
 
-    model = hyperparametertuning()
+    model = hyperparametertuning_SVM()
     for train_index, test_index in kf.split(df_x, df_y):
 
 
@@ -192,4 +183,23 @@ def crossvalidaion():
     print("%0.2f accuracy with a standard deviation of %0.2f" %
           (acc_arr.mean(), acc_arr.std()))
 
-crossvalidaion()
+crossvalidation()
+
+def evaluation_label_0():
+    
+    predictions_0= model.predict(label_0[:, :-1])
+    
+    print('f1_score for all 0', f1_score(label_0[:, -1],predictions_0, average=None)[0])
+    print('acc score for all 0',accuracy_score(label_0[:, -1],predictions_0))
+
+evaluation_label_0()
+
+#the same can be done for the every set of rows possible :D,
+# but important to say that label_0 has a huge part of data that has never been seen by the model
+
+
+
+
+
+
+
