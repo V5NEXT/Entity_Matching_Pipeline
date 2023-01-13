@@ -13,7 +13,11 @@ We tried between Logistics Regression and SVM. Since SVM yielded better results 
 Base Model Creation
 SVM() : Function which uses sklearn's sklearn.svm funstion to train the model
 
-We achieved 0.9687713699566901
+We achieved :
+
+Without Preprocessing : 0.9224880382775119 (Correlation Plot :  Plots/Without_Preprocess.png)
+With Preprocessing : 0.9687713699566901  (Correlation Plot :  Plots/After_Preprocess.png)
+
 
 You can replicate the results by just running the function svm()
 
@@ -35,7 +39,10 @@ We found out that :
 
 And therfore final f-score before cross validation is 1
 [0. 0. 0. ... 1. 1. 1.]
-F1_SCORE_FINAL 1.0
+F1_SCORE_FINAL
+ With Pre-processing : 1.0
+ Without Pre-processing : 0.9991489361702128
+
 
 You can replicate the following results by running the function hyperparametertuning_SVM()
 

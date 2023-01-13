@@ -109,6 +109,8 @@ def evaluating_dataset():
     sns.pairplot(df_DBLP)
     plt.show()
 
+    return df_DBLP,df_ACM
+
 
 def remove_html_tags(text):
     return BeautifulSoup(text, 'html.parser').get_text()

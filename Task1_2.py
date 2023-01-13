@@ -11,7 +11,11 @@ except AttributeError:
 for attr in attrlist:
     globals()[attr] = getattr(data_prep, attr)
 
+# With preprocessing
 df_DBLP, df_ACM = data_prep.preprocessing()
+# Without preprocessing
+# df_DBLP, df_ACM = data_prep.evaluating_dataset()
+
 
 v_1=df_ACM['venue'].value_counts()
 v_2=df_DBLP['venue'].value_counts()
