@@ -110,8 +110,8 @@ def svm():
     disp.plot()
     plt.show()
     return score
-# result_svm=svm()
-# print(result_svm)
+    result_svm=svm()
+    print(result_svm)
 
 
 def hyperparametertuning_SVM():
@@ -119,7 +119,7 @@ def hyperparametertuning_SVM():
     #defining parameter range
     param_grid = {'C': [0.1, 1, 10, 100, 1000],
                   'gamma': [1, 0.1, 0.01, 0.001, 0.0001],
-                  'kernel': ['rbf']}
+                  'kernel': ['rbf','linear']}
 
     grid = GridSearchCV(SVC(), param_grid, refit=True, verbose=3)
     start = time.time()
@@ -145,7 +145,6 @@ def hyperparametertuning_SVM():
     
     return model
 
-model=hyperparametertuning_SVM()
 
 df_x = np.concatenate([X_train, X_test], axis=0)
 df_y = np.concatenate([y_train, y_test], axis=0)
@@ -183,20 +182,26 @@ def crossvalidation():
     print("%0.2f accuracy with a standard deviation of %0.2f" %
           (acc_arr.mean(), acc_arr.std()))
 
-crossvalidation()
 
 def evaluation_label_0():
-    
+    model = hyperparametertuning_SVM()
     predictions_0= model.predict(label_0[:, :-1])
     
     print('f1_score for all 0', f1_score(label_0[:, -1],predictions_0, average=None)[0])
     print('acc score for all 0',accuracy_score(label_0[:, -1],predictions_0))
 
-evaluation_label_0()
+# For running base model uncomment below:
+# svm()
+
+# For hyper-parameter tuning results uncomment below:
+# hyperparametertuning_SVM()
+
+# For K-Fold cross-validation results uncomment below:
+crossvalidation()
 
 #the same can be done for the every set of rows possible :D,
 # but important to say that label_0 has a huge part of data that has never been seen by the model
-
+# evaluation_label_0()
 
 
 
