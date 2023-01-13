@@ -1,5 +1,7 @@
 # Entity_Matching_Pipeline - Task 1
-
+Members :
+Angela Agoston,
+Vishnu Viswambharan <br/><br/><br/>
 [Task 01] File Task1.1.py <br/><br/>
 1)Reading the CSV files, performing basic descriptions of each attribute, ploting them, counting unique occurences etc.
 Here we observe, that contain schema ACM contains less records than schema DBLP. So, intuitvely, we make an assumption that we should make the ACM fixed as a benchmark, 
@@ -38,7 +40,7 @@ Once again, a dictionary can be created used for transforming the (idACM,idDBLP)
 
 
 # Entity_Matching_Pipeline - Task 2 SVM Prediction
-
+ 
 
 
 Task 2.1 (File : Task2.py)
