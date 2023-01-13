@@ -3,7 +3,7 @@
 1)Reading the CSV files, performing basic descriptions of each attribute, plotting them, counting unique occurances etc.
 Here we observe, that contain schema ACM contains less records than schema DBLP. So, intuitively, we make an assumption that we should make the ACM fixed as a benchmark,
 and look for its matches.
-Then, utilizing special python librares for each step of the following, preproccesing/normalization pipeline: lowering the strings, removing numbers from strings, 
+Then, utilizing special python libraries for each step of the following, preproccesing/normalization pipeline: lowering the strings, removing numbers from strings,
 removing special characters from strings, performing stemming, removing stopwords, removing possible HTML tags.
 After the preprocessing is done, a necessary transformation is done, which will later help in performing blocking.
 By simple observing the similarities between 'venue' attribute values from both schemas, we see that a transforming can be done.
